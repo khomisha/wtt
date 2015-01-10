@@ -12,7 +12,7 @@ Web Testing Tool can be used for web application testing as well as for the web 
 Run build jar:
 
 ```sh
-java -jar -Dlog4j.configuration=<your log4j>.properties wtt-0.0.1.jar <your wtt configuration file>.properties
+$ mvn package
 ```
 
 The resulting jar files are in `target/`.
@@ -20,8 +20,10 @@ The resulting jar files are in `target/`.
 
 ## Usage
 
+Run Web Testing Tool
+
 ```sh
-$ mvn package
+java -jar -Dlog4j.configuration=<your log4j>.properties wtt-0.0.1.jar <your wtt configuration file>.properties
 ```
 
 ## Contact
