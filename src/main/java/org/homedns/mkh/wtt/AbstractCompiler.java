@@ -52,6 +52,13 @@ public abstract class AbstractCompiler {
 	
 	public AbstractCompiler( ) {
 		compiler = ToolProvider.getSystemJavaCompiler( );
+		if( compiler == null ) {
+			String sMsg = (
+				"For runtime compilation JDK must be used. Current JAVA_HOME = " + 
+				System.getProperty( "java.home" )
+			);
+			throw new NullPointerException( sMsg );
+		}
 	}
 
 	/**
