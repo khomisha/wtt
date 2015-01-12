@@ -37,18 +37,22 @@ public abstract class GenericScreenplay implements Job {
 	 * @see org.quartz.Job#execute(org.quartz.JobExecutionContext)
 	 */
 	public void execute( JobExecutionContext context ) throws JobExecutionException {
-		sJobName = JobScheduler.getJobKey( context.getJobDetail( ).getKey( ) );
+		sJobName = JobScheduler.getJobName( context.getJobDetail( ).getKey( ) );
 	    LOG.debug( "=== " + sJobName + ": executing at: " + new Date( ) + " ===" );
 		try {
 			setUp( );
 			test( );
-			tearDown( );
 		} catch( Exception e ) {
-			LOG.error( sJobName + ": " + e.getMessage( ), e );
-			if( e instanceof JobExecutionException ) {
-				JobExecutionException ex = ( JobExecutionException )e;
-				ex.setUnscheduleFiringTrigger( true );
-				LOG.error( sJobName + " is stopped" );
+			LOG.error( sJobName + ": " + e.getMessage( ) );
+			JobExecutionException ex = new JobExecutionException( e );
+			ex.setUnscheduleFiringTrigger( true );
+			throw ex;
+		}
+		finally {
+			try {
+				tearDown( );
+			} catch( Exception e ) {
+				LOG.error( sJobName + ": " + e.getMessage( ) );
 			}
 		}
 	    LOG.debug( "=== " + sJobName + ": completed: " + new Date( ) + " ===" );

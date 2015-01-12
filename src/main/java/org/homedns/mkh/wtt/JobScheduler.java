@@ -21,19 +21,24 @@ package org.homedns.mkh.wtt;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.log4j.Logger;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.CronTrigger;
 import org.quartz.Job;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
+import org.quartz.JobExecutionContext;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SchedulerFactory;
+import org.quartz.Trigger;
+import org.quartz.Trigger.CompletedExecutionInstruction;
 import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
 import org.quartz.impl.StdSchedulerFactory;
+import org.quartz.listeners.TriggerListenerSupport;
 
 /**
  * Job scheduler object
@@ -72,6 +77,37 @@ public class JobScheduler {
 				addJob( sProperty, sValue );
 			}
 		}
+		scheduler.getListenerManager( ).addTriggerListener( 
+			new TriggerListenerSupport( ) {
+				@Override
+				public String getName( ) {
+					return( "xxx" );
+				}
+
+				@Override
+				public void triggerComplete( 
+					Trigger trigger,
+					JobExecutionContext context,
+					CompletedExecutionInstruction triggerInstructionCode 
+				) {
+					super.triggerComplete( trigger, context, triggerInstructionCode );
+					try {
+						if( triggerInstructionCode == CompletedExecutionInstruction.SET_TRIGGER_COMPLETE ) {
+							JobKey jobKey = trigger.getJobKey( );
+							LOG.info( getJobName( jobKey ) + ": is unscheduled" );
+							jobs.remove( jobKey );
+							scheduler.unscheduleJob( trigger.getKey( ) );
+							if( isJobPoolEmpty( ) ) {
+								LOG.info( "Jobs pool is empty." );
+								System.exit( 0 );
+							}
+						}
+					} catch( SchedulerException e ) {
+						LOG.error( e );			
+					}
+				}
+			}
+		);
 	}
 	
 	/**
@@ -148,7 +184,7 @@ public class JobScheduler {
 	 * 
 	 * @return the job name
 	 */
-	public static String getJobKey( JobKey jobKey ) {
+	public static String getJobName( JobKey jobKey ) {
 		return( jobs.get( jobKey ) );
 	}
 	
@@ -160,7 +196,7 @@ public class JobScheduler {
 	public static boolean isJobPoolEmpty( ) {
 		return( jobs.isEmpty( ) );
 	}
-	
+		
 	/**
 	 * Generates job key
 	 * 

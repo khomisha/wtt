@@ -67,7 +67,7 @@ public class Wtt {
 	 */
 	private void execute( ) throws SchedulerException {
 		if( JobScheduler.isJobPoolEmpty( ) ) {
-			LOG.info( "Jobs pool is empty. Exiting..." );
+			LOG.info( "Jobs pool is empty." );
 			System.exit( 0 );
 		} else {
 			scheduler.getScheduler( ).start( );
